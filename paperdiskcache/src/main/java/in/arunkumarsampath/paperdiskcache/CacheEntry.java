@@ -1,9 +1,9 @@
 package in.arunkumarsampath.paperdiskcache;
 
-public class CacheEntry<T> {
-    public final T value;
+class CacheEntry<T> {
+    final T value;
 
-    public CacheEntry(T value) {
+    CacheEntry(T value) {
         this.value = value;
     }
 }
