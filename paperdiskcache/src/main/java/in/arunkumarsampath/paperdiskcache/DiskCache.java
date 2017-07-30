@@ -15,5 +15,7 @@ public interface DiskCache<T> {
 
     void clear();
 
+    int count();
+
     boolean exists(@NonNull String key);
 }
