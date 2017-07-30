@@ -1,12 +1,10 @@
 package in.arunkumarsampath.paperdiskcache;
 
-import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import in.arunkumarsampath.paperdiskcache.model.TestModel;
@@ -31,13 +29,6 @@ public class PaperDiskCacheTest {
     @After
     public void cleanup() {
         cache.clear();
-    }
-
-    @Test
-    public void useAppContext() throws Exception {
-        // Context of the app under test.
-        Context appContext = InstrumentationRegistry.getTargetContext();
-        assertEquals("in.arunkumarsampath.paperdiskcache.test", appContext.getPackageName());
     }
 
     public void testPaperCacheAdd() {
