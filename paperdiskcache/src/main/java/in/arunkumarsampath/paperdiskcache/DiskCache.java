@@ -18,4 +18,6 @@ public interface DiskCache<T> {
     int count();
 
     boolean exists(@NonNull String key);
+
+    void flush();
 }

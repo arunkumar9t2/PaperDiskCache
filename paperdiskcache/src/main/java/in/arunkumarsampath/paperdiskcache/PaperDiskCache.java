@@ -7,6 +7,8 @@ import android.util.Log;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -26,17 +28,16 @@ public class PaperDiskCache<T> implements DiskCache<T> {
 
     private final SizePolicy sizePolicy;
 
-    private final ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     private final Object lock = new Object();
+
+    protected final ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    private boolean autoCleanupEnabled = true;
     private final Runnable cleanUpTask = new Runnable() {
         @Override
         public void run() {
-            synchronized (lock) {
-                final long maxSize = sizePolicy.size;
-                final long currentSize = dirSize(paperDbFile);
-                Log.d(TAG, String.format("max: %d, current %d", maxSize, currentSize));
-                if (currentSize > maxSize) {
-                    Log.d(TAG, "Attempting clean up");
+            if (autoCleanupEnabled) {
+                synchronized (lock) {
+                    trimToSize();
                 }
             }
         }
@@ -49,6 +50,14 @@ public class PaperDiskCache<T> implements DiskCache<T> {
         this.sizePolicy = sizePolicy;
     }
 
+    public boolean isAutoCleanupEnabled() {
+        return autoCleanupEnabled;
+    }
+
+    public void setAutoCleanupEnabled(boolean autoCleanupEnabled) {
+        this.autoCleanupEnabled = autoCleanupEnabled;
+    }
+
     @Override
     public T put(@NonNull String key, T value) {
         requireNonNull(value, "value cannot be null");
@@ -59,16 +68,19 @@ public class PaperDiskCache<T> implements DiskCache<T> {
 
     @NonNull
     private CacheEntry<T> putCacheEntry(@NonNull String key, @NonNull CacheEntry<T> cacheEntry) {
-        cacheEntry.setLastModified(currentTimeMillis());
+        cacheEntry.lastModified = currentTimeMillis();
         cacheBook.write(key, cacheEntry);
         return cacheEntry;
     }
 
+    private CacheEntry<T> readCacheEntry(@NonNull String key) {
+        return cacheBook.read(key);
+    }
+
     @Override
     public T get(@NonNull String key) {
-        final CacheEntry<T> cacheEntry = cacheBook.read(key);
-        T readValue = putCacheEntry(key, cacheEntry).value;
-        return readValue;
+        final CacheEntry<T> cacheEntry = readCacheEntry(key);
+        return putCacheEntry(key, cacheEntry).value;
     }
 
     @Override
@@ -99,6 +111,35 @@ public class PaperDiskCache<T> implements DiskCache<T> {
     @Override
     public boolean exists(@NonNull String key) {
         return cacheBook.exist(key);
+    }
+
+    @Override
+    public void flush() {
+        trimToSize();
+    }
+
+    private void trimToSize() {
+        final long maxSize = sizePolicy.size;
+        final long currentSize = size();
+        Log.d(TAG, String.format("max: %d, current %d", maxSize, currentSize));
+        if (currentSize > maxSize) {
+            Log.d(TAG, "Attempting clean up");
+            final List<String> keys = cacheBook.getAllKeys();
+            final TreeMap<Long, String> sortedKeyMap = new TreeMap<>();
+            for (final String key : keys) {
+                sortedKeyMap.put(readCacheEntry(key).lastModified, key);
+            }
+            while (size() > maxSize) {
+                final Map.Entry<Long, String> firstEntry = sortedKeyMap.pollFirstEntry();
+                final String keyToEvict = firstEntry.getValue();
+                Log.d(TAG, "Evicting : " + keyToEvict);
+                remove(keyToEvict);
+            }
+        }
+    }
+
+    private long size() {
+        return dirSize(paperDbFile);
     }
 
     private long dirSize(@NonNull File directory) {
