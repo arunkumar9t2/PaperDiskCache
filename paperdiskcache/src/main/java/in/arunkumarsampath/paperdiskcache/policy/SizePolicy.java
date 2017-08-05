@@ -1,7 +1,7 @@
 package in.arunkumarsampath.paperdiskcache.policy;
 
 public class SizePolicy implements Policy {
-    public long size = -1;
+    public long size = Long.MAX_VALUE;
 
     public SizePolicy() {
     }
