@@ -5,6 +5,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import in.arunkumarsampath.paperdiskcache.model.TestModel;
@@ -31,6 +32,7 @@ public class PaperDiskCacheTest {
         cache.clear();
     }
 
+    @Test
     public void testPaperCacheAdd() {
         final TestModel testModel = new TestModel("Something");
         cache.put(testModel.name, testModel);
