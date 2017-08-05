@@ -12,19 +12,15 @@ import in.arunkumarsampath.paperdiskcache.model.TestModel;
 import in.arunkumarsampath.paperdiskcache.policy.SizePolicy;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-/**
- * Instrumented test, which will execute on an Android device.
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 @RunWith(AndroidJUnit4.class)
 public class PaperDiskCacheTest {
     private PaperDiskCache<TestModel> cache;
 
     @Before
     public void setup() {
-        cache = new PaperDiskCache<>(InstrumentationRegistry.getContext(), TestModel.class, new SizePolicy());
+        cache = new PaperDiskCache<>(InstrumentationRegistry.getContext(), TestModel.class, new SizePolicy(300));
     }
 
     @After
@@ -33,9 +29,22 @@ public class PaperDiskCacheTest {
     }
 
     @Test
-    public void testPaperCacheAdd() {
+    public void testPaperCacheAdd() throws Exception {
+        cache.clear();
+
         final TestModel testModel = new TestModel("Something");
         cache.put(testModel.name, testModel);
         assertEquals(cache.get(testModel.name), testModel);
+    }
+
+    @Test
+    public void testPaperCacheRemove() throws Exception {
+        cache.clear();
+
+        final TestModel testModel = new TestModel("Something");
+        cache.put(testModel.name, testModel);
+        cache.remove(testModel.name);
+        assertEquals(0, cache.count());
+        assertFalse(cache.exists(testModel.name));
     }
 }
