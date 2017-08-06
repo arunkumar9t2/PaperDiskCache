@@ -24,7 +24,7 @@ public class PaperDiskCache<T> implements DiskCache<T> {
     public static final String TAG = PaperDiskCache.class.getSimpleName();
 
     private final Book cacheBook;
-    private final File paperDbFile;
+    private final File cacheDirectory;
 
     private final SizePolicy sizePolicy;
 
@@ -43,7 +43,7 @@ public class PaperDiskCache<T> implements DiskCache<T> {
     public PaperDiskCache(@NonNull Context context, @NonNull Class<T> clazz, @NonNull SizePolicy sizePolicy) {
         Paper.init(context);
         this.cacheBook = Paper.book(clazz.getName());
-        this.paperDbFile = new File(context.getFilesDir() + File.separator + clazz.getName());
+        this.cacheDirectory = new File(context.getFilesDir() + File.separator + clazz.getName());
         this.sizePolicy = sizePolicy;
     }
 
@@ -53,6 +53,9 @@ public class PaperDiskCache<T> implements DiskCache<T> {
 
     public void setAutoCleanupEnabled(boolean autoCleanupEnabled) {
         this.autoCleanupEnabled = autoCleanupEnabled;
+        if (autoCleanupEnabled) {
+            scheduleCleanUp();
+        }
     }
 
     @Override
@@ -136,7 +139,7 @@ public class PaperDiskCache<T> implements DiskCache<T> {
     }
 
     private long size() {
-        return dirSize(paperDbFile);
+        return dirSize(cacheDirectory);
     }
 
     private long dirSize(@NonNull File directory) {

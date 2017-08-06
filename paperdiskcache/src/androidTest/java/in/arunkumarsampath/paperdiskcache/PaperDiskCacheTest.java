@@ -56,6 +56,17 @@ public class PaperDiskCacheTest {
     }
 
     @Test
+    public void testPaperCacheClear() throws Exception {
+        cache.clear();
+
+        final TestModel testModel = newTestModel();
+        cache.put(testModel.name, testModel);
+        cache.clear();
+        assertEquals(0, cache.count());
+        assertFalse(cache.exists(testModel.name));
+    }
+
+    @Test
     public void testEvictionAttemptedOnCachePut() throws Exception {
         cache.clear();
         cache.setAutoCleanupEnabled(true);
