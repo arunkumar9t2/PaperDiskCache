@@ -30,15 +30,12 @@ public class PaperDiskCache<T> implements DiskCache<T> {
 
     private final Object lock = new Object();
 
-    protected final ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+    protected final ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     private boolean autoCleanupEnabled = true;
-    private final Runnable cleanUpTask = new Runnable() {
-        @Override
-        public void run() {
-            if (autoCleanupEnabled) {
-                synchronized (lock) {
-                    trimToSize();
-                }
+    private final Runnable cleanUpTask = () -> {
+        if (autoCleanupEnabled) {
+            synchronized (lock) {
+                trimToSize();
             }
         }
     };
