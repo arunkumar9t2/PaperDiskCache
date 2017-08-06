@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import in.arunkumarsampath.paperdiskcache.policy.SizePolicy;
 import io.paperdb.Book;
@@ -31,9 +32,9 @@ public class PaperDiskCache<T> implements DiskCache<T> {
     private final Object lock = new Object();
 
     protected final ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
-    private boolean autoCleanupEnabled = true;
+    private AtomicBoolean autoCleanupEnabled = new AtomicBoolean(true);
     private final Runnable cleanUpTask = () -> {
-        if (autoCleanupEnabled) {
+        if (autoCleanupEnabled.get()) {
             synchronized (lock) {
                 trimToSize();
             }
@@ -48,12 +49,11 @@ public class PaperDiskCache<T> implements DiskCache<T> {
     }
 
     public boolean isAutoCleanupEnabled() {
-        return autoCleanupEnabled;
+        return autoCleanupEnabled.get();
     }
 
-    public void setAutoCleanupEnabled(boolean autoCleanupEnabled) {
-        this.autoCleanupEnabled = autoCleanupEnabled;
-        if (autoCleanupEnabled) {
+    public void setAutoCleanupEnabled(boolean enabled) {
+        if (autoCleanupEnabled.compareAndSet(!enabled, enabled)) {
             scheduleCleanUp();
         }
     }
