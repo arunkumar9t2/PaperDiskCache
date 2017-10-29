@@ -17,7 +17,7 @@ public interface DiskCache<T> {
 
     int count();
 
-    boolean exists(@NonNull String key);
+    boolean contains(@NonNull String key);
 
     void flush();
 }

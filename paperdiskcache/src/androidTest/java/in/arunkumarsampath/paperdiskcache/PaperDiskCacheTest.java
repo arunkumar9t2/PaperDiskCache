@@ -52,7 +52,7 @@ public class PaperDiskCacheTest {
         cache.put(testModel.name, testModel);
         cache.remove(testModel.name);
         assertEquals(0, cache.count());
-        assertFalse(cache.exists(testModel.name));
+        assertFalse(cache.contains(testModel.name));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class PaperDiskCacheTest {
         cache.put(testModel.name, testModel);
         cache.clear();
         assertEquals(0, cache.count());
-        assertFalse(cache.exists(testModel.name));
+        assertFalse(cache.contains(testModel.name));
     }
 
     @Test
@@ -97,12 +97,12 @@ public class PaperDiskCacheTest {
         cache.flush();
 
         assertEquals(2, cache.count());
-        assertTrue(cache.exists(testMode6.name));
-        assertTrue(cache.exists(testMode5.name));
-        assertTrue(!cache.exists(testMode4.name));
-        assertTrue(!cache.exists(testMode3.name));
-        assertTrue(!cache.exists(testMode2.name));
-        assertTrue(!cache.exists(testModel.name));
+        assertTrue(cache.contains(testMode6.name));
+        assertTrue(cache.contains(testMode5.name));
+        assertTrue(!cache.contains(testMode4.name));
+        assertTrue(!cache.contains(testMode3.name));
+        assertTrue(!cache.contains(testMode2.name));
+        assertTrue(!cache.contains(testModel.name));
     }
 
     @Test
@@ -118,9 +118,9 @@ public class PaperDiskCacheTest {
         cache.put(testMode3.name, testMode3);
 
         Thread.sleep(2000);
-        assertTrue(cache.exists(testMode3.name));
-        assertTrue(cache.exists(testMode2.name));
-        assertTrue(!cache.exists(testModel.name));
+        assertTrue(cache.contains(testMode3.name));
+        assertTrue(cache.contains(testMode2.name));
+        assertTrue(!cache.contains(testModel.name));
     }
 }
 

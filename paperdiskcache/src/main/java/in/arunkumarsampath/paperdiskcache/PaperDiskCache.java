@@ -110,8 +110,8 @@ public class PaperDiskCache<T> implements DiskCache<T> {
     }
 
     @Override
-    public boolean exists(@NonNull String key) {
-        return cacheBook.exist(key);
+    public boolean contains(@NonNull String key) {
+        return cacheBook.contains(key);
     }
 
     @Override
