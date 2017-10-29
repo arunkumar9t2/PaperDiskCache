@@ -33,6 +33,7 @@ public class PaperDiskCache<T> implements DiskCache<T> {
 
     protected final ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
     private AtomicBoolean autoCleanupEnabled = new AtomicBoolean(true);
+
     private final Runnable cleanUpTask = () -> {
         if (autoCleanupEnabled.get()) {
             synchronized (lock) {
